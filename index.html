@@ -3,699 +3,939 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Forecast Pro</title>
+    <title>NexusShop - Premium E-commerce</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .weather-card:hover {
+        /* Custom CSS for animations and effects */
+        .product-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
         
-        .weather-icon {
-            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2));
+        .cart-item-enter {
+            opacity: 0;
+            transform: translateX(-20px);
         }
         
-        .gradient-bg {
-            background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+        .cart-item-enter-active {
+            opacity: 1;
+            transform: translateX(0);
+            transition: all 300ms ease-out;
         }
         
-        .night-gradient {
-            background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+        .cart-item-exit {
+            opacity: 1;
+            transform: translateX(0);
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .cart-item-exit-active {
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 300ms ease-out;
         }
         
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
         }
         
-        .delay-100 {
-            animation-delay: 0.1s;
-        }
-        
-        .delay-200 {
-            animation-delay: 0.2s;
-        }
-        
-        .delay-300 {
-            animation-delay: 0.3s;
-        }
-        
-        .loader {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 4px solid #ffffff;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .toggle-checkbox:checked {
-            right: 0;
-            background-color: #4F46E5;
-        }
-        
-        .toggle-checkbox:checked + .toggle-label {
-            background-color: #818CF8;
+        .pulse-animation {
+            animation: pulse 1.5s infinite;
         }
     </style>
 </head>
-<body class="min-h-screen bg-gray-100 font-sans">
-    <div class="container mx-auto px-4 py-8">
-        <!-- Header -->
-        <header class="mb-8">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="text-center md:text-left">
-                    <h1 class="text-4xl font-bold text-gray-800 mb-1">Weather Forecast Pro</h1>
-                    <p class="text-gray-600">Get accurate weather updates worldwide</p>
-                </div>
-                
-                <div class="flex items-center space-x-4">
-                    <div class="flex items-center">
-                        <span class="mr-2 text-sm text-gray-600">°C</span>
-                        <div class="relative inline-block w-12 mr-2 align-middle select-none">
-                            <input type="checkbox" name="toggle" id="toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
-                            <label for="toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
-                        </div>
-                        <span class="text-sm text-gray-600">°F</span>
-                    </div>
-                </div>
+<body class="bg-gray-50 font-sans">
+    <!-- Header/Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-bolt text-blue-600 text-2xl"></i>
+                <h1 class="text-2xl font-bold text-gray-800">Nexus<span class="text-blue-600">Shop</span></h1>
             </div>
-        </header>
+            
+            <div class="hidden md:flex space-x-6">
+                <a href="#" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+                <a href="#" class="text-gray-700 hover:text-blue-600 font-medium">Shop</a>
+                <a href="#" class="text-gray-700 hover:text-blue-600 font-medium">Categories</a>
+                <a href="#" class="text-gray-700 hover:text-blue-600 font-medium">About</a>
+                <a href="#" class="text-gray-700 hover:text-blue-600 font-medium">Contact</a>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button id="search-btn" class="text-gray-600 hover:text-blue-600">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button id="cart-btn" class="relative text-gray-600 hover:text-blue-600">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+                <button class="md:hidden text-gray-600" id="mobile-menu-btn">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white py-2 px-4 shadow-md">
+            <a href="#" class="block py-2 text-gray-700 hover:text-blue-600">Home</a>
+            <a href="#" class="block py-2 text-gray-700 hover:text-blue-600">Shop</a>
+            <a href="#" class="block py-2 text-gray-700 hover:text-blue-600">Categories</a>
+            <a href="#" class="block py-2 text-gray-700 hover:text-blue-600">About</a>
+            <a href="#" class="block py-2 text-gray-700 hover:text-blue-600">Contact</a>
+        </div>
         
         <!-- Search Bar -->
-        <div class="max-w-md mx-auto mb-10 animate-fade-in">
-            <div class="relative flex items-center">
-                <input 
-                    type="text" 
-                    id="locationInput" 
-                    placeholder="Enter city name or zip code..." 
-                    class="w-full px-5 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
-                    value="New York"
-                >
-                <button 
-                    id="searchBtn"
-                    class="absolute right-2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors"
-                >
+        <div id="search-bar" class="hidden bg-white py-3 px-4 shadow-md">
+            <div class="container mx-auto flex">
+                <input type="text" placeholder="Search products..." class="flex-grow px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button class="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700">
                     <i class="fas fa-search"></i>
                 </button>
             </div>
-            <div id="errorMessage" class="text-red-500 mt-2 text-sm hidden">
-                <i class="fas fa-exclamation-circle mr-1"></i> Please enter a valid location
+        </div>
+    </header>
+    
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-16">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-8 md:mb-0">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Premium Tech for Your Digital Life</h2>
+                <p class="text-xl mb-6">Discover the latest gadgets and electronics at unbeatable prices.</p>
+                <button class="bg-white text-blue-600 font-bold px-6 py-3 rounded-full hover:bg-gray-100 transition duration-300 transform hover:scale-105">
+                    Shop Now <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+            <div class="md:w-1/2 flex justify-center">
+        
             </div>
         </div>
-        
-        <!-- Loading Indicator -->
-        <div id="loadingIndicator" class="flex justify-center items-center my-8 hidden">
-            <div class="loader"></div>
-            <span class="ml-3 text-gray-600">Fetching weather data...</span>
-        </div>
-        
-        <!-- Current Weather -->
-        <div id="currentWeather" class="gradient-bg text-white rounded-2xl p-6 mb-8 shadow-xl max-w-4xl mx-auto animate-fade-in delay-100 hidden">
-            <div class="flex flex-col md:flex-row items-center justify-between">
-                <div class="text-center md:text-left mb-6 md:mb-0">
-                    <div class="flex items-center justify-center md:justify-start">
-                        <h2 class="text-2xl font-semibold mb-1 mr-2" id="currentLocation">New York, US</h2>
-                        <button id="refreshBtn" class="text-white opacity-80 hover:opacity-100 transition-opacity" title="Refresh">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
+    </section>
+    
+    <!-- Featured Categories -->
+    <section class="py-12 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-10 text-gray-800">Shop by Category</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="bg-gray-100 rounded-lg p-6 text-center hover:bg-blue-50 transition duration-300 cursor-pointer">
+                    <div class="bg-blue-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-mobile-alt text-blue-600 text-2xl"></i>
                     </div>
-                    <p class="opacity-90 mb-4" id="currentDate">Monday, June 12, 2023</p>
-                    <div class="flex items-center">
-                        <div class="text-5xl font-bold mr-4" id="currentTemp">72°F</div>
-                        <div class="text-sm">
-                            <div>H: <span id="highTemp">78°</span></div>
-                            <div>L: <span id="lowTemp">65°</span></div>
-                        </div>
-                    </div>
+                    <h3 class="font-semibold text-gray-800">Smartphones</h3>
+                    <p class="text-sm text-gray-600 mt-1">50+ Products</p>
                 </div>
-                
-                <div class="flex items-center">
-                    <div class="weather-icon text-8xl mr-6">
-                        <i class="fas fa-sun" id="currentWeatherIcon"></i>
+                <div class="bg-gray-100 rounded-lg p-6 text-center hover:bg-blue-50 transition duration-300 cursor-pointer">
+                    <div class="bg-purple-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-laptop text-purple-600 text-2xl"></i>
                     </div>
-                    <div>
-                        <div class="text-xl mb-2" id="currentCondition">Sunny</div>
-                        <div class="flex items-center mb-1">
-                            <i class="fas fa-wind mr-2 opacity-80"></i>
-                            <span id="currentWind">5 mph</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-tint mr-2 opacity-80"></i>
-                            <span id="currentHumidity">45%</span>
-                        </div>
+                    <h3 class="font-semibold text-gray-800">Laptops</h3>
+                    <p class="text-sm text-gray-600 mt-1">30+ Products</p>
+                </div>
+                <div class="bg-gray-100 rounded-lg p-6 text-center hover:bg-blue-50 transition duration-300 cursor-pointer">
+                    <div class="bg-green-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-headphones text-green-600 text-2xl"></i>
                     </div>
+                    <h3 class="font-semibold text-gray-800">Audio</h3>
+                    <p class="text-sm text-gray-600 mt-1">45+ Products</p>
+                </div>
+                <div class="bg-gray-100 rounded-lg p-6 text-center hover:bg-blue-50 transition duration-300 cursor-pointer">
+                    <div class="bg-red-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-clock text-red-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">Wearables</h3>
+                    <p class="text-sm text-gray-600 mt-1">25+ Products</p>
                 </div>
             </div>
         </div>
-        
-        <!-- Forecast -->
-        <div id="forecastContainer" class="max-w-4xl mx-auto animate-fade-in delay-200 hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold text-gray-800">5-Day Forecast</h3>
-                <button id="forecastToggle" class="text-blue-600 text-sm flex items-center">
-                    <span>Hourly</span>
-                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+    </section>
+    
+    <!-- Featured Products -->
+    <section class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800">Featured Products</h2>
+                <a href="#" class="text-blue-600 font-medium hover:underline">View All</a>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8" id="products-container">
+                <!-- Products will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </section>
+    
+    <!-- Special Offer Banner -->
+    <section class="py-12 bg-gradient-to-r from-orange-500 to-pink-600 text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">Summer Sale - Up to 50% Off!</h2>
+            <p class="text-xl mb-6">Limited time offer on selected products. Don't miss out!</p>
+            <div class="flex justify-center space-x-4 mb-6">
+                <div class="bg-white bg-opacity-20 rounded-lg px-4 py-2">
+                    <span class="text-2xl font-bold" id="countdown-days">07</span>
+                    <span class="block text-sm">Days</span>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-lg px-4 py-2">
+                    <span class="text-2xl font-bold" id="countdown-hours">23</span>
+                    <span class="block text-sm">Hours</span>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-lg px-4 py-2">
+                    <span class="text-2xl font-bold" id="countdown-minutes">59</span>
+                    <span class="block text-sm">Minutes</span>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-lg px-4 py-2">
+                    <span class="text-2xl font-bold" id="countdown-seconds">59</span>
+                    <span class="block text-sm">Seconds</span>
+                </div>
+            </div>
+            <button class="bg-white text-orange-600 font-bold px-6 py-3 rounded-full hover:bg-gray-100 transition duration-300 transform hover:scale-105 pulse-animation">
+                Shop the Sale <i class="fas fa-fire ml-2"></i>
+            </button>
+        </div>
+    </section>
+    
+    <!-- Testimonials -->
+    <section class="py-12 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-10 text-gray-800">What Our Customers Say</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                            <i class="fas fa-user text-blue-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">Sarah Johnson</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">"The delivery was super fast and the product quality exceeded my expectations. Will definitely shop here again!"</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-4">
+                            <i class="fas fa-user text-purple-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">Michael Chen</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">"Excellent customer service! They helped me choose the perfect laptop for my needs and even price-matched a competitor."</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                            <i class="fas fa-user text-green-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">David Wilson</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">"I've purchased multiple items from NexusShop and every experience has been flawless. Highly recommended!"</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Newsletter -->
+    <section class="py-12 bg-gray-100">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Stay Updated</h2>
+            <p class="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">Subscribe to our newsletter for exclusive deals, new arrivals, and tech tips.</p>
+            <div class="flex flex-col sm:flex-row max-w-md mx-auto sm:max-w-xl">
+                <input type="email" placeholder="Your email address" class="px-4 py-3 rounded sm:rounded-r-none border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-grow mb-2 sm:mb-0">
+                <button class="bg-blue-600 text-white px-6 py-3 rounded sm:rounded-l-none font-medium hover:bg-blue-700 transition duration-300">
+                    Subscribe <i class="fas fa-paper-plane ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white pt-12 pb-6">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-bolt text-blue-400 text-2xl"></i>
+                        <h3 class="text-xl font-bold">Nexus<span class="text-blue-400">Shop</span></h3>
+                    </div>
+                    <p class="text-gray-400 mb-4">Your one-stop shop for premium electronics and gadgets at competitive prices.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-blue-400"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-blue-400"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-blue-400"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-blue-400"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Shop</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">All Products</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Featured</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">New Arrivals</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Sale Items</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Gift Cards</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">FAQs</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Shipping Info</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Returns & Exchanges</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mt-1 mr-3 text-blue-400"></i>
+                            <span>123 Tech Street, Silicon Valley, CA 94000</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone-alt mr-3 text-blue-400"></i>
+                            <span>(555) 123-4567</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope mr-3 text-blue-400"></i>
+                            <span>support@nexusshop.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-6 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 mb-4 md:mb-0">© 2023 NexusShop. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <img src="https://via.placeholder.com/40x25?text=VISA" alt="Visa" class="h-6">
+                    <img src="https://via.placeholder.com/40x25?text=MC" alt="Mastercard" class="h-6">
+                    <img src="https://via.placeholder.com/40x25?text=AMEX" alt="American Express" class="h-6">
+                    <img src="https://via.placeholder.com/40x25?text=PP" alt="PayPal" class="h-6">
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Shopping Cart Sidebar -->
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out z-50 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Your Cart (<span id="sidebar-cart-count">0</span>)</h3>
+                <button id="close-cart" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             
-            <!-- Daily Forecast -->
-            <div id="dailyForecast" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                <!-- Forecast days will be populated here -->
+            <div id="cart-items" class="space-y-4 mb-6">
+                <!-- Cart items will be loaded here -->
+                <div class="text-center py-8 text-gray-500" id="empty-cart-message">
+                    <i class="fas fa-shopping-cart text-4xl mb-4 text-gray-300"></i>
+                    <p>Your cart is empty</p>
+                </div>
             </div>
             
-            <!-- Hourly Forecast (Hidden by default) -->
-            <div id="hourlyForecast" class="mt-6 hidden">
-                <h4 class="text-lg font-medium text-gray-700 mb-3">Hourly Forecast</h4>
-                <div class="bg-white rounded-xl shadow-md overflow-x-auto">
-                    <div class="flex p-4 space-x-6 min-w-max" id="hourlyForecastItems">
-                        <!-- Hourly forecast items will be populated here -->
-                    </div>
+            <div class="border-t border-gray-200 pt-4 mb-6">
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-600">Subtotal</span>
+                    <span class="font-medium" id="cart-subtotal">$0.00</span>
                 </div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-600">Shipping</span>
+                    <span class="font-medium">Free</span>
+                </div>
+                <div class="flex justify-between text-lg font-bold mt-4">
+                    <span>Total</span>
+                    <span id="cart-total">$0.00</span>
+                </div>
+            </div>
+            
+            <button id="checkout-btn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                Proceed to Checkout <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+            
+            <div class="mt-4 text-center">
+                <a href="#" class="text-blue-600 text-sm hover:underline">Continue Shopping</a>
             </div>
         </div>
-        
-        <!-- Additional Weather Info -->
-        <div id="additionalInfo" class="max-w-4xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in delay-300 hidden">
-            <div class="bg-white rounded-xl p-4 shadow-md">
-                <div class="flex items-center">
-                    <div class="bg-blue-100 p-3 rounded-full mr-4">
-                        <i class="fas fa-temperature-high text-blue-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 text-sm">Feels Like</p>
-                        <p class="font-semibold" id="feelsLike">74°F</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-xl p-4 shadow-md">
-                <div class="flex items-center">
-                    <div class="bg-purple-100 p-3 rounded-full mr-4">
-                        <i class="fas fa-eye text-purple-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 text-sm">Visibility</p>
-                        <p class="font-semibold" id="visibility">10 mi</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-xl p-4 shadow-md">
-                <div class="flex items-center">
-                    <div class="bg-orange-100 p-3 rounded-full mr-4">
-                        <i class="fas fa-sun text-orange-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 text-sm">UV Index</p>
-                        <p class="font-semibold" id="uvIndex">6 of 10</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-xl p-4 shadow-md">
-                <div class="flex items-center">
-                    <div class="bg-green-100 p-3 rounded-full mr-4">
-                        <i class="fas fa-cloud-rain text-green-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 text-sm">Precipitation</p>
-                        <p class="font-semibold" id="precipitation">0%</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-xl p-4 shadow-md">
-                <div class="flex items-center">
-                    <div class="bg-red-100 p-3 rounded-full mr-4">
-                        <i class="fas fa-compress-arrows-alt text-red-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 text-sm">Pressure</p>
-                        <p class="font-semibold" id="pressure">1012 hPa</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-xl p-4 shadow-md">
-                <div class="flex items-center">
-                    <div class="bg-indigo-100 p-3 rounded-full mr-4">
-                        <i class="fas fa-clock text-indigo-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 text-sm">Sunrise/Sunset</p>
-                        <p class="font-semibold" id="sunTimes">6:45 AM / 7:30 PM</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Footer -->
-        <footer class="mt-12 text-center text-gray-500 text-sm">
-            <p>Powered by OpenWeatherMap API</p>
-            <p class="mt-2">© 2023 Weather Forecast Pro</p>
-        </footer>
     </div>
-
+    
+    <!-- Overlay for cart sidebar -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+    
+    <!-- Quick View Modal -->
+    <div id="quick-view-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800" id="quick-view-title">Product Name</h3>
+                    <button id="close-quick-view" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="flex flex-col md:flex-row gap-8">
+                    <div class="md:w-1/2">
+                        <img id="quick-view-image" src="" alt="Product" class="w-full rounded-lg">
+                        <div class="grid grid-cols-4 gap-2 mt-4">
+                            <img src="https://via.placeholder.com/100" alt="Thumbnail" class="rounded cursor-pointer border border-gray-200 hover:border-blue-500">
+                            <img src="https://via.placeholder.com/100" alt="Thumbnail" class="rounded cursor-pointer border border-gray-200 hover:border-blue-500">
+                            <img src="https://via.placeholder.com/100" alt="Thumbnail" class="rounded cursor-pointer border border-gray-200 hover:border-blue-500">
+                            <img src="https://via.placeholder.com/100" alt="Thumbnail" class="rounded cursor-pointer border border-gray-200 hover:border-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="md:w-1/2">
+                        <div class="flex items-center mb-4">
+                            <div class="flex text-yellow-400 mr-2">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span class="text-gray-600 text-sm" id="quick-view-reviews">(42 reviews)</span>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <span class="text-2xl font-bold text-gray-900" id="quick-view-price">$999.99</span>
+                            <span class="text-lg text-gray-500 line-through ml-2" id="quick-view-old-price">$1,199.99</span>
+                            <span class="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded">16% OFF</span>
+                        </div>
+                        
+                        <p class="text-gray-700 mb-6" id="quick-view-description">Product description goes here with all the details about features, specifications, and benefits.</p>
+                        
+                        <div class="mb-6">
+                            <h4 class="font-medium text-gray-900 mb-2">Color</h4>
+                            <div class="flex space-x-2">
+                                <button class="w-8 h-8 rounded-full bg-blue-600 border-2 border-blue-600"></button>
+                                <button class="w-8 h-8 rounded-full bg-gray-800 border-2 border-gray-300 hover:border-gray-800"></button>
+                                <button class="w-8 h-8 rounded-full bg-white border-2 border-gray-300 hover:border-gray-800"></button>
+                                <button class="w-8 h-8 rounded-full bg-red-600 border-2 border-gray-300 hover:border-red-600"></button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h4 class="font-medium text-gray-900 mb-2">Size</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <button class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400">128GB</button>
+                                <button class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400">256GB</button>
+                                <button class="px-4 py-2 border border-blue-500 bg-blue-50 text-blue-700 rounded">512GB</button>
+                                <button class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400">1TB</button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center mb-8">
+                            <div class="flex items-center border border-gray-300 rounded">
+                                <button class="px-3 py-1 text-gray-600 hover:bg-gray-100" id="decrease-qty">-</button>
+                                <span class="px-4 py-1 border-x border-gray-300" id="product-qty">1</span>
+                                <button class="px-3 py-1 text-gray-600 hover:bg-gray-100" id="increase-qty">+</button>
+                            </div>
+                            <span class="ml-4 text-sm text-gray-600">Only <span class="font-medium text-blue-600" id="stock-available">12</span> left in stock!</span>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button class="flex-grow bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition duration-300 flex items-center justify-center">
+                                <i class="fas fa-shopping-cart mr-2"></i> Add to Cart
+                            </button>
+                            <button class="flex-grow bg-gray-100 text-gray-800 py-3 px-6 rounded-lg font-medium hover:bg-gray-200 transition duration-300 flex items-center justify-center">
+                                <i class="far fa-heart mr-2"></i> Wishlist
+                            </button>
+                        </div>
+                        
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <div class="flex items-start mb-2">
+                                <i class="fas fa-truck text-gray-500 mt-1 mr-3"></i>
+                                <div>
+                                    <h4 class="font-medium text-gray-900">Free Delivery</h4>
+                                    <p class="text-sm text-gray-600">Free shipping on all orders over $50</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-undo-alt text-gray-500 mt-1 mr-3"></i>
+                                <div>
+                                    <h4 class="font-medium text-gray-900">Easy Returns</h4>
+                                    <p class="text-sm text-gray-600">30-day hassle-free returns policy</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center transform translate-y-10 opacity-0 transition-all duration-300 z-50">
+        <i class="fas fa-check-circle mr-3"></i>
+        <span id="toast-message">Product added to cart!</span>
+    </div>
+    
     <script>
-        // Configuration
-        let config = {
-            apiKey: 'd019ebc3e9cfc25c6d9e1562add3316c', // Public API key for demo purposes
-            unit: localStorage.getItem('weatherUnit') || 'imperial', // 'imperial' or 'metric'
-            lastLocation: localStorage.getItem('lastLocation') || 'New York'
-        };
+        // Product Data
+        const products = [
+            {
+                id: 1,
+                name: "iPhone 14 Pro Max",
+                price: 1099,
+                oldPrice: 1199,
+                image: "https://images.unsplash.com/photo-1663499482523-37da6ce2b63d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                category: "Smartphones",
+                rating: 4.8,
+                reviews: 124,
+                description: "The iPhone 14 Pro Max features a stunning 6.7-inch Super Retina XDR display, A16 Bionic chip, and an advanced camera system for incredible photos and videos.",
+                stock: 15
+            },
+            {
+                id: 2,
+                name: "MacBook Pro 14\" M2",
+                price: 1999,
+                oldPrice: 2199,
+                image: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                category: "Laptops",
+                rating: 4.9,
+                reviews: 89,
+                description: "The MacBook Pro 14\" with M2 chip delivers exceptional performance with up to 20 hours of battery life, a Liquid Retina XDR display, and a pro camera system.",
+                stock: 8
+            },
+            {
+                id: 3,
+                name: "Sony WH-1000XM5",
+                price: 399,
+                oldPrice: 449,
+                image: "https://images.unsplash.com/photo-1655365225178-b1b4c59aab1f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                category: "Audio",
+                rating: 4.7,
+                reviews: 215,
+                description: "Sony's WH-1000XM5 headphones feature industry-leading noise cancellation, 30-hour battery life, and exceptional sound quality with LDAC technology.",
+                stock: 22
+            },
+            {
+                id: 4,
+                name: "Apple Watch Ultra",
+                price: 799,
+                oldPrice: 899,
+                image: "https://images.unsplash.com/photo-1664478546384-c9233ee81e4a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                category: "Wearables",
+                rating: 4.6,
+                reviews: 76,
+                description: "The Apple Watch Ultra is built for adventure with a rugged titanium case, precision GPS, up to 36-hour battery life, and advanced health monitoring features.",
+                stock: 12
+            },
+            {
+                id: 5,
+                name: "Samsung Galaxy S23 Ultra",
+                price: 1199,
+                oldPrice: 1299,
+                image: "https://images.unsplash.com/photo-1676046187313-9eaf5627b3d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                category: "Smartphones",
+                rating: 4.8,
+                reviews: 142,
+                description: "The Galaxy S23 Ultra features a 6.8-inch Dynamic AMOLED 2X display, 200MP camera, S Pen support, and the fastest Snapdragon processor yet.",
+                stock: 18
+            },
+            {
+                id: 6,
+                name: "Bose QuietComfort Earbuds II",
+                price: 299,
+                oldPrice: 349,
+                image: "https://images.unsplash.com/photo-1664478546384-4e52fbbd6f3a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                category: "Audio",
+                rating: 4.5,
+                reviews: 187,
+                description: "Bose QuietComfort Earbuds II offer world-class noise cancellation, immersive sound, and a comfortable secure fit with customizable noise cancellation levels.",
+                stock: 25
+            },
+            {
+                id: 7,
+                name: "Dell XPS 15",
+                price: 1799,
+                oldPrice: 1999,
+                image: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                category: "Laptops",
+                rating: 4.7,
+                reviews: 63,
+                description: "The Dell XPS 15 combines stunning 4K Ultra HD+ display with powerful Intel Core i9 processors and NVIDIA graphics in a sleek, lightweight design.",
+                stock: 5
+            },
+            {
+                id: 8,
+                name: "Google Pixel 7 Pro",
+                price: 899,
+                oldPrice: 999,
+                image: "https://images.unsplash.com/photo-1664478690684-0e72a6fca3e8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                category: "Smartphones",
+                rating: 4.6,
+                reviews: 98,
+                description: "Pixel 7 Pro features Google's most powerful chip yet, an advanced camera system with Super Res Zoom up to 30x, and the best of Google built in.",
+                stock: 14
+            }
+        ];
+        
+        // Shopping Cart
+        let cart = [];
         
         // DOM Elements
-        const locationInput = document.getElementById('locationInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const errorMessage = document.getElementById('errorMessage');
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        const currentWeather = document.getElementById('currentWeather');
-        const forecastContainer = document.getElementById('forecastContainer');
-        const additionalInfo = document.getElementById('additionalInfo');
-        const toggle = document.getElementById('toggle');
-        const refreshBtn = document.getElementById('refreshBtn');
-        const forecastToggle = document.getElementById('forecastToggle');
-        const dailyForecast = document.getElementById('dailyForecast');
-        const hourlyForecast = document.getElementById('hourlyForecast');
-        const hourlyForecastItems = document.getElementById('hourlyForecastItems');
+        const productsContainer = document.getElementById('products-container');
+        const cartCount = document.getElementById('cart-count');
+        const sidebarCartCount = document.getElementById('sidebar-cart-count');
+        const cartItemsContainer = document.getElementById('cart-items');
+        const cartSubtotal = document.getElementById('cart-subtotal');
+        const cartTotal = document.getElementById('cart-total');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const emptyCartMessage = document.getElementById('empty-cart-message');
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const cartBtn = document.getElementById('cart-btn');
+        const closeCartBtn = document.getElementById('close-cart');
+        const overlay = document.getElementById('overlay');
+        const quickViewModal = document.getElementById('quick-view-modal');
+        const closeQuickViewBtn = document.getElementById('close-quick-view');
+        const toast = document.getElementById('toast');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const searchBtn = document.getElementById('search-btn');
+        const searchBar = document.getElementById('search-bar');
         
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set unit toggle
-            toggle.checked = config.unit === 'metric';
-            
-            // Set last location if exists
-            locationInput.value = config.lastLocation;
-            
-            // Fetch weather for default location
-            fetchWeather(config.lastLocation);
-            
-            updateDate();
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            setupEventListeners();
+            startCountdown();
         });
         
-        // Event Listeners
-        searchBtn.addEventListener('click', handleSearch);
-        toggle.addEventListener('change', toggleUnit);
-        refreshBtn.addEventListener('click', handleRefresh);
-        forecastToggle.addEventListener('click', toggleForecastView);
+        // Render products to the page
+        function renderProducts() {
+            productsContainer.innerHTML = '';
+            
+            products.forEach(product => {
+                const discount = Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100);
+                
+                const productCard = document.createElement('div');
+                productCard.className = 'bg-white rounded-lg overflow-hidden shadow-md product-card transition duration-300';
+                productCard.innerHTML = `
+                    <div class="relative">
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-64 object-cover">
+                        ${product.oldPrice ? `<span class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">${discount}% OFF</span>` : ''}
+                        <button class="absolute top-2 left-2 bg-white text-gray-800 p-2 rounded-full hover:bg-gray-100 quick-view-btn" data-id="${product.id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-semibold text-lg text-gray-800">${product.name}</h3>
+                            <div class="flex items-center">
+                                <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                <span class="text-gray-600 text-sm ml-1">${product.rating}</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">${product.category}</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-lg font-bold text-gray-900">$${product.price.toFixed(2)}</span>
+                                ${product.oldPrice ? `<span class="text-sm text-gray-500 line-through ml-2">$${product.oldPrice.toFixed(2)}</span>` : ''}
+                            </div>
+                            <button class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm hover:bg-blue-700 transition duration-300 add-to-cart-btn" data-id="${product.id}">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                productsContainer.appendChild(productCard);
+            });
+        }
         
-        // Allow search on Enter key
-        locationInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                handleSearch();
+        // Setup event listeners
+        function setupEventListeners() {
+            // Cart button
+            cartBtn.addEventListener('click', toggleCartSidebar);
+            closeCartBtn.addEventListener('click', toggleCartSidebar);
+            overlay.addEventListener('click', toggleCartSidebar);
+            
+            // Mobile menu
+            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+            
+            // Search button
+            searchBtn.addEventListener('click', toggleSearchBar);
+            
+            // Quick view buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('quick-view-btn') || e.target.closest('.quick-view-btn')) {
+                    const btn = e.target.classList.contains('quick-view-btn') ? e.target : e.target.closest('.quick-view-btn');
+                    const productId = parseInt(btn.getAttribute('data-id'));
+                    openQuickView(productId);
+                }
+                
+                if (e.target.classList.contains('add-to-cart-btn') || e.target.closest('.add-to-cart-btn')) {
+                    const btn = e.target.classList.contains('add-to-cart-btn') ? e.target : e.target.closest('.add-to-cart-btn');
+                    const productId = parseInt(btn.getAttribute('data-id'));
+                    addToCart(productId);
+                }
+                
+                if (e.target.classList.contains('remove-from-cart') || e.target.closest('.remove-from-cart')) {
+                    const btn = e.target.classList.contains('remove-from-cart') ? e.target : e.target.closest('.remove-from-cart');
+                    const productId = parseInt(btn.getAttribute('data-id'));
+                    removeFromCart(productId);
+                }
+                
+                if (e.target.classList.contains('decrease-qty') || e.target.closest('.decrease-qty')) {
+                    const btn = e.target.classList.contains('decrease-qty') ? e.target : e.target.closest('.decrease-qty');
+                    const productId = parseInt(btn.getAttribute('data-id'));
+                    updateCartItemQuantity(productId, -1);
+                }
+                
+                if (e.target.classList.contains('increase-qty') || e.target.closest('.increase-qty')) {
+                    const btn = e.target.classList.contains('increase-qty') ? e.target : e.target.closest('.increase-qty');
+                    const productId = parseInt(btn.getAttribute('data-id'));
+                    updateCartItemQuantity(productId, 1);
+                }
+            });
+            
+            // Close quick view
+            closeQuickViewBtn.addEventListener('click', closeQuickView);
+            
+            // Checkout button
+            checkoutBtn.addEventListener('click', proceedToCheckout);
+        }
+        
+        // Toggle cart sidebar
+        function toggleCartSidebar() {
+            cartSidebar.classList.toggle('translate-x-full');
+            overlay.classList.toggle('hidden');
+            document.body.classList.toggle('overflow-hidden');
+            
+            if (!cartSidebar.classList.contains('translate-x-full')) {
+                renderCartItems();
             }
-        });
+        }
         
-        // Functions
-        function handleSearch() {
-            const location = locationInput.value.trim();
-            if (!location) {
-                showError('Please enter a location');
+        // Toggle mobile menu
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('hidden');
+        }
+        
+        // Toggle search bar
+        function toggleSearchBar() {
+            searchBar.classList.toggle('hidden');
+        }
+        
+        // Add product to cart
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            
+            if (!product) return;
+            
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    ...product,
+                    quantity: 1
+                });
+            }
+            
+            updateCart();
+            showToast(`${product.name} added to cart`);
+        }
+        
+        // Remove product from cart
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCart();
+            renderCartItems();
+        }
+        
+        // Update cart item quantity
+        function updateCartItemQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            
+            if (!item) return;
+            
+            item.quantity += change;
+            
+            if (item.quantity <= 0) {
+                removeFromCart(productId);
+            } else {
+                updateCart();
+                renderCartItems();
+            }
+        }
+        
+        // Update cart UI
+        function updateCart() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            cartCount.textContent = totalItems;
+            sidebarCartCount.textContent = totalItems;
+            cartSubtotal.textContent = `$${subtotal.toFixed(2)}`;
+            cartTotal.textContent = `$${subtotal.toFixed(2)}`;
+            
+            checkoutBtn.disabled = totalItems === 0;
+            
+            // Save cart to localStorage
+            localStorage.setItem('nexusShopCart', JSON.stringify(cart));
+        }
+        
+        // Render cart items
+        function renderCartItems() {
+            if (cart.length === 0) {
+                emptyCartMessage.classList.remove('hidden');
+                cartItemsContainer.innerHTML = '';
                 return;
             }
             
-            fetchWeather(location);
-        }
-        
-        function handleRefresh() {
-            if (config.lastLocation) {
-                fetchWeather(config.lastLocation);
-            }
-        }
-        
-        function toggleUnit() {
-            config.unit = toggle.checked ? 'metric' : 'imperial';
-            localStorage.setItem('weatherUnit', config.unit);
+            emptyCartMessage.classList.add('hidden');
+            cartItemsContainer.innerHTML = '';
             
-            if (config.lastLocation) {
-                fetchWeather(config.lastLocation);
-            }
+            cart.forEach(item => {
+                const cartItem = document.createElement('div');
+                cartItem.className = 'flex items-center border-b border-gray-200 pb-4';
+                cartItem.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded">
+                    <div class="ml-4 flex-grow">
+                        <h4 class="font-medium text-gray-800">${item.name}</h4>
+                        <p class="text-sm text-gray-600">$${item.price.toFixed(2)}</p>
+                    </div>
+                    <div class="flex items-center">
+                        <button class="text-gray-500 hover:text-gray-700 decrease-qty" data-id="${item.id}">
+                            <i class="fas fa-minus text-xs"></i>
+                        </button>
+                        <span class="mx-2 text-gray-800">${item.quantity}</span>
+                        <button class="text-gray-500 hover:text-gray-700 increase-qty" data-id="${item.id}">
+                            <i class="fas fa-plus text-xs"></i>
+                        </button>
+                        <button class="ml-4 text-red-500 hover:text-red-700 remove-from-cart" data-id="${item.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                cartItemsContainer.appendChild(cartItem);
+            });
         }
         
-        function toggleForecastView() {
-            const isHourly = hourlyForecast.classList.contains('hidden');
-            hourlyForecast.classList.toggle('hidden');
-            dailyForecast.classList.toggle('hidden');
+        // Open quick view modal
+        function openQuickView(productId) {
+            const product = products.find(p => p.id === productId);
             
-            forecastToggle.innerHTML = isHourly 
-                ? '<span>Daily</span><i class="fas fa-chevron-up ml-1 text-xs"></i>' 
-                : '<span>Hourly</span><i class="fas fa-chevron-down ml-1 text-xs"></i>';
+            if (!product) return;
+            
+            const discount = Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100);
+            
+            document.getElementById('quick-view-title').textContent = product.name;
+            document.getElementById('quick-view-image').src = product.image;
+            document.getElementById('quick-view-price').textContent = `$${product.price.toFixed(2)}`;
+            document.getElementById('quick-view-old-price').textContent = `$${product.oldPrice.toFixed(2)}`;
+            document.getElementById('quick-view-description').textContent = product.description;
+            document.getElementById('quick-view-reviews').textContent = `(${product.reviews} reviews)`;
+            document.getElementById('stock-available').textContent = product.stock;
+            
+            quickViewModal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
         }
         
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.classList.remove('hidden');
+        // Close quick view modal
+        function closeQuickView() {
+            quickViewModal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+        
+        // Show toast notification
+        function showToast(message) {
+            const toastMessage = document.getElementById('toast-message');
+            toastMessage.textContent = message;
+            
+            toast.classList.remove('translate-y-10', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
             setTimeout(() => {
-                errorMessage.classList.add('hidden');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-10', 'opacity-0');
             }, 3000);
         }
         
-        function updateDate() {
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const today = new Date();
-            document.getElementById('currentDate').textContent = today.toLocaleDateString('en-US', options);
+        // Proceed to checkout
+        function proceedToCheckout() {
+            showToast('Proceeding to checkout...');
+            setTimeout(() => {
+                alert('Checkout functionality would be implemented here in a real application.');
+            }, 1000);
         }
         
-        function getWeatherIcon(conditionCode, isNight = false) {
-            // Map OpenWeatherMap condition codes to Font Awesome icons
-            const iconMap = {
-                // Thunderstorm
-                '200': 'fa-bolt', // thunderstorm with light rain
-                '201': 'fa-bolt', // thunderstorm with rain
-                '202': 'fa-bolt', // thunderstorm with heavy rain
-                '210': 'fa-bolt', // light thunderstorm
-                '211': 'fa-bolt', // thunderstorm
-                '212': 'fa-bolt', // heavy thunderstorm
-                '221': 'fa-bolt', // ragged thunderstorm
-                '230': 'fa-bolt', // thunderstorm with light drizzle
-                '231': 'fa-bolt', // thunderstorm with drizzle
-                '232': 'fa-bolt', // thunderstorm with heavy drizzle
-                
-                // Drizzle
-                '300': 'fa-cloud-rain', // light intensity drizzle
-                '301': 'fa-cloud-rain', // drizzle
-                '302': 'fa-cloud-rain', // heavy intensity drizzle
-                '310': 'fa-cloud-rain', // light intensity drizzle rain
-                '311': 'fa-cloud-rain', // drizzle rain
-                '312': 'fa-cloud-rain', // heavy intensity drizzle rain
-                '313': 'fa-cloud-rain', // shower rain and drizzle
-                '314': 'fa-cloud-rain', // heavy shower rain and drizzle
-                '321': 'fa-cloud-rain', // shower drizzle
-                
-                // Rain
-                '500': 'fa-cloud-showers-heavy', // light rain
-                '501': 'fa-cloud-showers-heavy', // moderate rain
-                '502': 'fa-cloud-showers-heavy', // heavy intensity rain
-                '503': 'fa-cloud-showers-heavy', // very heavy rain
-                '504': 'fa-cloud-showers-heavy', // extreme rain
-                '511': 'fa-s snowflake', // freezing rain
-                '520': 'fa-cloud-showers-heavy', // light intensity shower rain
-                '521': 'fa-cloud-showers-heavy', // shower rain
-                '522': 'fa-cloud-showers-heavy', // heavy intensity shower rain
-                '531': 'fa-cloud-showers-heavy', // ragged shower rain
-                
-                // Snow
-                '600': 'fa-snowflake', // light snow
-                '601': 'fa-snowflake', // snow
-                '602': 'fa-snowflake', // heavy snow
-                '611': 'fa-snowflake', // sleet
-                '612': 'fa-snowflake', // light shower sleet
-                '613': 'fa-s snowflake', // shower sleet
-                '615': 'fa-snowflake', // light rain and snow
-                '616': 'fa-snowflake', // rain and snow
-                '620': 'fa-snowflake', // light shower snow
-                '621': 'fa-snowflake', // shower snow
-                '622': 'fa-snowflake', // heavy shower snow
-                
-                // Atmosphere
-                '701': 'fa-smog', // mist
-                '711': 'fa-smog', // smoke
-                '721': 'fa-smog', // haze
-                '731': 'fa-smog', // sand/dust whirls
-                '741': 'fa-smog', // fog
-                '751': 'fa-smog', // sand
-                '761': 'fa-smog', // dust
-                '762': 'fa-smog', // volcanic ash
-                '771': 'fa-wind', // squalls
-                '781': 'fa-tornado', // tornado
-                
-                // Clear
-                '800': isNight ? 'fa-moon' : 'fa-sun', // clear sky
-                
-                // Clouds
-                '801': isNight ? 'fa-cloud-moon' : 'fa-cloud-sun', // few clouds
-                '802': 'fa-cloud', // scattered clouds
-                '803': 'fa-cloud', // broken clouds
-                '804': 'fa-cloud', // overcast clouds
-            };
+        // Countdown timer for special offer
+        function startCountdown() {
+            // Set the date we're counting down to (3 days from now)
+            const countDownDate = new Date();
+            countDownDate.setDate(countDownDate.getDate() + 3);
             
-            return iconMap[conditionCode] || 'fa-question';
+            // Update the countdown every 1 second
+            const x = setInterval(function() {
+                // Get today's date and time
+                const now = new Date().getTime();
+                
+                // Find the distance between now and the countdown date
+                const distance = countDownDate - now;
+                
+                // Time calculations for days, hours, minutes and seconds
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                // Display the result
+                document.getElementById('countdown-days').textContent = days.toString().padStart(2, '0');
+                document.getElementById('countdown-hours').textContent = hours.toString().padStart(2, '0');
+                document.getElementById('countdown-minutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('countdown-seconds').textContent = seconds.toString().padStart(2, '0');
+                
+                // If the countdown is finished, clear interval
+                if (distance < 0) {
+                    clearInterval(x);
+                    document.getElementById('countdown-days').textContent = '00';
+                    document.getElementById('countdown-hours').textContent = '00';
+                    document.getElementById('countdown-minutes').textContent = '00';
+                    document.getElementById('countdown-seconds').textContent = '00';
+                }
+            }, 1000);
         }
         
-        function getWeatherColor(conditionCode) {
-            // Map OpenWeatherMap condition codes to Tailwind colors
-            const colorMap = {
-                // Thunderstorm
-                '200': 'text-purple-500',
-                '201': 'text-purple-500',
-                '202': 'text-purple-500',
-                '210': 'text-purple-500',
-                '211': 'text-purple-500',
-                '212': 'text-purple-500',
-                '221': 'text-purple-500',
-                '230': 'text-purple-500',
-                '231': 'text-purple-500',
-                '232': 'text-purple-500',
-                
-                // Drizzle
-                '300': 'text-blue-400',
-                '301': 'text-blue-400',
-                '302': 'text-blue-400',
-                '310': 'text-blue-400',
-                '311': 'text-blue-400',
-                '312': 'text-blue-400',
-                '313': 'text-blue-400',
-                '314': 'text-blue-400',
-                '321': 'text-blue-400',
-                
-                // Rain
-                '500': 'text-blue-500',
-                '501': 'text-blue-500',
-                '502': 'text-blue-500',
-                '503': 'text-blue-500',
-                '504': 'text-blue-500',
-                '511': 'text-blue-300',
-                '520': 'text-blue-500',
-                '521': 'text-blue-500',
-                '522': 'text-blue-500',
-                '531': 'text-blue-500',
-                
-                // Snow
-                '600': 'text-blue-200',
-                '601': 'text-blue-200',
-                '602': 'text-blue-200',
-                '611': 'text-blue-200',
-                '612': 'text-blue-200',
-                '613': 'text-blue-200',
-                '615': 'text-blue-200',
-                '616': 'text-blue-200',
-                '620': 'text-blue-200',
-                '621': 'text-blue-200',
-                '622': 'text-blue-200',
-                
-                // Atmosphere
-                '701': 'text-gray-400',
-                '711': 'text-gray-500',
-                '721': 'text-gray-400',
-                '731': 'text-yellow-500',
-                '741': 'text-gray-400',
-                '751': 'text-yellow-500',
-                '761': 'text-yellow-500',
-                '762': 'text-gray-500',
-                '771': 'text-gray-500',
-                '781': 'text-red-500',
-                
-                // Clear
-                '800': 'text-yellow-400',
-                
-                // Clouds
-                '801': 'text-blue-300',
-                '802': 'text-gray-400',
-                '803': 'text-gray-500',
-                '804': 'text-gray-600',
-            };
-            
-            return colorMap[conditionCode] || 'text-gray-500';
-        }
-        
-        function fetchWeather(location) {
-            // Show loading indicator
-            loadingIndicator.classList.remove('hidden');
-            currentWeather.classList.add('hidden');
-            forecastContainer.classList.add('hidden');
-            additionalInfo.classList.add('hidden');
-            
-            // Save location
-            config.lastLocation = location;
-            localStorage.setItem('lastLocation', location);
-            
-            // Fetch current weather
-            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${location}&units=${config.unit}&appid=${config.apiKey}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Location not found');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    updateWeatherData(data);
-                    
-                    // Fetch 5-day forecast
-                    return fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${location}&units=${config.unit}&appid=${config.apiKey}`);
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Forecast not available');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    updateForecastData(data);
-                    
-                    // Hide loading indicator
-                    loadingIndicator.classList.add('hidden');
-                    
-                    // Show weather sections
-                    currentWeather.classList.remove('hidden');
-                    forecastContainer.classList.remove('hidden');
-                    additionalInfo.classList.remove('hidden');
-                })
-                .catch(error => {
-                    loadingIndicator.classList.add('hidden');
-                    showError(error.message);
-                });
-        }
-        
-        function updateWeatherData(data) {
-            // Update current weather
-            document.getElementById('currentLocation').textContent = `${data.name}, ${data.sys.country}`;
-            document.getElementById('currentTemp').textContent = `${Math.round(data.main.temp)}°${config.unit === 'metric' ? 'C' : 'F'}`;
-            document.getElementById('currentCondition').textContent = data.weather[0].main;
-            document.getElementById('currentWind').textContent = `${Math.round(data.wind.speed)} ${config.unit === 'metric' ? 'm/s' : 'mph'}`;
-            document.getElementById('currentHumidity').textContent = `${data.main.humidity}%`;
-            document.getElementById('feelsLike').textContent = `${Math.round(data.main.feels_like)}°${config.unit === 'metric' ? 'C' : 'F'}`;
-            document.getElementById('highTemp').textContent = `${Math.round(data.main.temp_max)}°`;
-            document.getElementById('lowTemp').textContent = `${Math.round(data.main.temp_min)}°`;
-            document.getElementById('visibility').textContent = `${config.unit === 'metric' ? (data.visibility / 1000).toFixed(1) + ' km' : (data.visibility / 1609).toFixed(1) + ' mi'}`;
-            document.getElementById('pressure').textContent = `${data.main.pressure} hPa`;
-            document.getElementById('uvIndex').textContent = 'N/A'; // UV index requires separate API call
-            
-            // Precipitation (rain or snow)
-            let precipitation = '0%';
-            if (data.rain && data.rain['1h']) {
-                precipitation = `${Math.round(data.rain['1h'])}%`;
-            } else if (data.snow && data.snow['1h']) {
-                precipitation = `${Math.round(data.snow['1h'])}%`;
+        // Load cart from localStorage if available
+        function loadCartFromStorage() {
+            const savedCart = localStorage.getItem('nexusShopCart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart);
+                updateCart();
             }
-            document.getElementById('precipitation').textContent = precipitation;
-            
-            // Convert Unix timestamps to readable time
-            const sunriseTime = new Date(data.sys.sunrise * 1000);
-            const sunsetTime = new Date(data.sys.sunset * 1000);
-            const options = { hour: 'numeric', minute: 'numeric', hour12: true };
-            document.getElementById('sunTimes').textContent = `${sunriseTime.toLocaleTimeString('en-US', options)} / ${sunsetTime.toLocaleTimeString('en-US', options)}`;
-            
-            // Determine if it's night time
-            const now = new Date();
-            const isNight = now.getHours() < sunriseTime.getHours() || now.getHours() >= sunsetTime.getHours();
-            
-            // Update weather icon based on condition and time
-            const weatherIcon = document.getElementById('currentWeatherIcon');
-            weatherIcon.className = `fas ${getWeatherIcon(data.weather[0].id.toString(), isNight)} weather-icon ${getWeatherColor(data.weather[0].id.toString())}`;
-            
-            // Change background based on time
-            const weatherContainer = document.getElementById('currentWeather');
-            weatherContainer.classList.remove('gradient-bg', 'night-gradient');
-            weatherContainer.classList.add(isNight ? 'night-gradient' : 'gradient-bg');
         }
         
-        function updateForecastData(data) {
-            // Clear existing forecast
-            dailyForecast.innerHTML = '';
-            hourlyForecastItems.innerHTML = '';
-            
-            // Process 5-day forecast (OpenWeatherMap provides 3-hour intervals for 5 days)
-            const dailyData = {};
-            const hourlyData = [];
-            
-            // Group by day and collect hourly data
-            data.list.forEach(item => {
-                const date = new Date(item.dt * 1000);
-                const day = date.toLocaleDateString('en-US', { weekday: 'short' });
-                const hour = date.getHours();
-                
-                // For daily forecast (just one entry per day)
-                if (!dailyData[day]) {
-                    dailyData[day] = {
-                        date: date,
-                        day: day,
-                        temp: item.main.temp,
-                        temp_min: item.main.temp_min,
-                        temp_max: item.main.temp_max,
-                        condition: item.weather[0].main,
-                        conditionId: item.weather[0].id,
-                        icon: getWeatherIcon(item.weather[0].id.toString()),
-                        color: getWeatherColor(item.weather[0].id.toString())
-                    };
-                } else {
-                    // Update min/max temps
-                    if (item.main.temp_min < dailyData[day].temp_min) {
-                        dailyData[day].temp_min = item.main.temp_min;
-                    }
-                    if (item.main.temp_max > dailyData[day].temp_max) {
-                        dailyData[day].temp_max = item.main.temp_max;
-                    }
-                }
-                
-                // For hourly forecast (next 24 hours)
-                const now = new Date();
-                const hoursDiff = (date - now) / (1000 * 60 * 60);
-                if (hoursDiff >= 0 && hoursDiff <= 24) {
-                    hourlyData.push({
-                        time: hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`,
-                        temp: item.main.temp,
-                        conditionId: item.weather[0].id,
-                        icon: getWeatherIcon(item.weather[0].id.toString()),
-                        color: getWeatherColor(item.weather[0].id.toString())
-                    });
-                }
-            });
-            
-            // Display daily forecast
-            Object.values(dailyData).slice(0, 5).forEach(day => {
-                const forecastDay = document.createElement('div');
-                forecastDay.className = 'weather-card bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all cursor-pointer';
-                forecastDay.innerHTML = `
-                    <div class="text-center">
-                        <p class="font-medium text-gray-700 mb-2">${day.day}</p>
-                        <div class="weather-icon text-4xl ${day.color} mb-2">
-                            <i class="fas ${day.icon}"></i>
-                        </div>
-                        <div class="flex justify-center space-x-4">
-                            <span class="font-semibold">${Math.round(day.temp_max)}°</span>
-                            <span class="text-gray-500">${Math.round(day.temp_min)}°</span>
-                        </div>
-                        <p class="text-sm text-gray-500 mt-1">${day.condition}</p>
-                    </div>
-                `;
-                dailyForecast.appendChild(forecastDay);
-            });
-            
-            // Display hourly forecast
-            hourlyData.forEach(hour => {
-                const hourElement = document.createElement('div');
-                hourElement.className = 'text-center';
-                hourElement.innerHTML = `
-                    <p class="text-gray-500 text-sm">${hour.time}</p>
-                    <div class="weather-icon text-2xl ${hour.color} my-2">
-                        <i class="fas ${hour.icon}"></i>
-                    </div>
-                    <p class="font-medium">${Math.round(hour.temp)}°</p>
-                `;
-                hourlyForecastItems.appendChild(hourElement);
-            });
-        }
+        // Initialize by loading cart from storage
+        loadCartFromStorage();
     </script>
 </body>
 </html>
